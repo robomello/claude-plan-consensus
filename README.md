@@ -2,11 +2,12 @@
 
 A Claude Code hook system that enforces multi-LLM consensus review on every implementation plan before it can be approved.
 
-When `plan-agent` writes a plan, a 3-phase pipeline fires automatically:
+When `plan-agent` writes a plan, a 4-phase pipeline fires automatically:
 
 - **Phase 0** — Haiku 4.5 verifies every file path, symbol, and claim in the plan against the actual codebase
-- **Phase 1** — 4 independent reviewers critique the plan (Haiku 4.5 + 3 local Ollama models)
-- **Phase 2** — same 4 models vote on a consensus document (APPROVE / REVISE / REJECT)
+- **Phase 1** — 5 independent reviewers critique the plan (Haiku 4.5 + Sonnet 4.6 + 3 local Ollama models)
+- **Phase 2** — same 5 models vote on a consensus document (APPROVE / REVISE / REJECT)
+- **Phase 3** — Opus reads the Phase 2 consensus and produces a final synthesis brief for the plan-agent
 
 The main Opus session reads the consensus, incorporates feedback, and adds `<!-- REVIEWED -->` to the plan. A gating hook blocks `ExitPlanMode` until that marker is present — you cannot approve an unreviewed plan.
 
@@ -21,12 +22,13 @@ plan-agent writes ~/.claude/plans/<slug>.md
        ↓
 PostToolUse hook fires: review_plan_consensus.sh
   ├─ Phase 0: Haiku grounding (tool-use: Read, Grep, Glob)
-  ├─ Phase 1: Haiku (bg) + model-a, model-b, model-c (sequential)
-  └─ Phase 2: same 4 models vote on consensus
+  ├─ Phase 1: Haiku (bg) + Sonnet (bg) + model-a, model-b, model-c (sequential)
+  ├─ Phase 2: same 5 models vote on consensus
+  └─ Phase 3: Opus reads Phase 2 → synthesis brief
        ↓
-Consensus saved to ~/.claude/reviews/
+All phases saved to ~/.claude/reviews/
        ↓
-plan-agent reads consensus, revises plan, adds <!-- REVIEWED -->
+plan-agent reads Opus synthesis + Phase 2 details, revises plan, adds <!-- REVIEWED -->
        ↓
 ExitPlanMode PreToolUse: enforce_plan_agent.py
   └─ BLOCKS unless <!-- REVIEWED --> present
@@ -149,6 +151,7 @@ Phase output files are saved to `~/.claude/reviews/`:
   20260429_143022-plan-phase0-grounding.md
   20260429_143022-plan-phase1.md
   20260429_143022-plan-phase2-consensus.md
+  20260429_143022-plan-phase3-opus.md
 ```
 
-The Phase 2 file is what Opus reads and responds to.
+The plan-agent receives the Opus synthesis (Phase 3) prepended to the full Phase 2 details.

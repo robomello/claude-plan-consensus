@@ -17,9 +17,11 @@ Explore codebases, decompose complex tasks, and design implementation plans.
 2. **Analyze** -- Identify components, constraints, conventions
 3. **Design** -- Propose approach with specific files/changes. For new tools, design modular structure (config, CLI, core, formatters, alerting). Aim for 5+ files for non-trivial tools.
 4. **Document** -- Write plan to target path (typically `~/.claude/plans/<slug>.md`). This triggers the consensus review hook.
-5. **Wait for 4 musketeers** -- Hook runs 2-phase pipeline:
-   - Phase 1: 4 LLMs review independently (Haiku 4.5, qwen3-coder-next, glm-4.7-flash, qwen3.6-35b), preceded by Haiku grounding
-   - Phase 2: 4-way consensus vote (Haiku + 3 local Ollama)
+5. **Wait for the pipeline** -- Hook runs a 4-phase pipeline:
+   - Phase 0: Haiku grounding (verifies codebase claims)
+   - Phase 1: 5 LLMs review independently (Haiku 4.5, Sonnet 4.6, qwen3-coder-next, glm-4.7-flash, qwen3.6-35b)
+   - Phase 2: 5-way consensus vote (same models)
+   - Phase 3: Opus reads Phase 2 → final synthesis brief
 6. **Phase 3 (your turn)** -- MUST:
    1. Read full consensus document
    2. CRITICAL/HIGH findings: address in revised plan (fix, clarify, or dismiss with reasoning)
