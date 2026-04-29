@@ -1,0 +1,75 @@
+{
+  "_comment": "Merge these hook entries into your ~/.claude/settings.json hooks section. Run install.sh to generate a version with correct paths.",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 __HOOKS_DIR__/plan_update_hook.py"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "EnterPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash __HOOKS_DIR__/enforce_plan_agent.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "ExitPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 __HOOKS_DIR__/enforce_plan_agent.py"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash __HOOKS_DIR__/enforce_plan_agent.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "ExitPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 __HOOKS_DIR__/archive_plan.py"
+          },
+          {
+            "type": "command",
+            "command": "python3 __HOOKS_DIR__/validate_team_section.py"
+          },
+          {
+            "type": "command",
+            "command": "bash __HOOKS_DIR__/review_plan_consensus.sh",
+            "timeout": 600000
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash __HOOKS_DIR__/review_plan_consensus.sh",
+            "timeout": 600000
+          }
+        ]
+      }
+    ]
+  }
+}
