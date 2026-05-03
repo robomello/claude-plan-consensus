@@ -1,5 +1,7 @@
 # claude-plan-consensus
 
+![5-LLM consensus review banner](./banner.png)
+
 > **Make Claude Code argue with itself (and 3 local LLMs) before it ships a plan.**
 
 A hook system that forces a **5-LLM peer review** on every implementation plan Claude Code writes — *before* it's allowed to leave plan mode. The main session **cannot approve an unreviewed plan.** There is no bypass.
